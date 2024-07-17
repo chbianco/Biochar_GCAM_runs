@@ -1,0 +1,25 @@
+<queries>
+
+<aQuery>
+<region name  = 'Africa_Southern'/>
+<region name  = 'EU-12'/>
+ <query title="profit rate in a specified land use region">
+                <axis1 name="LandLeaf">LandLeaf</axis1>
+                <axis2 name="Year">profit-rate[@year]</axis2>
+                <xPath buildList="true" dataName="profit-rate" group="false" sumAll="false">/LandNode[@name='root' or @type='LandNode' (:collapse:)]//
+            LandLeaf[@land-region='MissouriR']/
+            profit-rate/text()</xPath>
+                <comments/>
+</query>
+</aQuery>
+
+<aQuery>
+<all-regions/>
+<query title="aggregated land allocation">
+                <axis1 name="LandLeaf">LandLeaf[@crop]</axis1>
+                <axis2 name="Year">land-allocation[@year]</axis2>
+                <xPath buildList="true" dataName="LandLeaf" group="false" sumAll="false">/LandNode[@name='root' or @type='LandNode' (:collapse:)]//land-allocation/text()</xPath>
+                <comments/>
+</query>
+</aQuery>
+</queries>
