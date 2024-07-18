@@ -2,6 +2,7 @@ library(rgcam)
 library(ggplot2)
 library(dplyr)
 library(tidyr)
+library(RColorBrewer)
 
 #What scenario do we want? (theoretically you only have to change this)
 scen = 'biochar_ref'
@@ -24,55 +25,93 @@ detailed_land_allocation %>%
                        names = c('Crop', 'Region', 'IRR', 'IRR_Level', 'Biochar', 'Biochar_Amount'),
                        too_few = 'align_start') -> sep_detailed_land_allocation
 
-#Plot the amount of biochar used 
-sep_detailed_land_allocation %>%
-  drop_na() %>%
-  filter(year > 2015) %>%
-  ggplot(aes(x = year, y = value, fill = Biochar_Amount)) +
-  geom_bar(stat='identity') +
-  labs(title = paste('Total Biochar Land (', scen, ')', sep = '' ), x = "Year", y = expression(Total~Biochar~Land~(km^2%*%10^3))) +
-  theme_bw() +
-  theme(legend.title = element_blank())
 
-ggsave(paste(scen, 'total_biochar_land.jpeg', sep = ''), path = 'Graphs')
 
 
 #Plot amount of biochar by crop
+#Make colors
+corn_colors = brewer.pal(5, 'Oranges')[3:5]
+soybean_colors = brewer.pal(5, 'Greens')[3:5]
+fiber_colors = brewer.pal(5, 'Purples')[3:5]
+other_colors = brewer.pal(5, 'Greys')[3:5]
+wheat_colors = brewer.pal(5, 'Blues')[3:5]
+
 sep_detailed_land_allocation %>%
   drop_na() %>%
   filter(year > 2015) %>%
   filter(
     (Crop == 'CornC4') | (Crop == 'Soybean') | (Crop == 'FiberCrop') | (Crop == 'OtherGrainC4') | (Crop == 'Wheat')) %>%
-  mutate(Crop = paste(Crop, Biochar_Amount, sep = ' ')) %>%
+  mutate(Crop = paste(Crop, Biochar_Amount, sep = ' ')) -> sep_detailed_land_allocation_bio
+  
+sep_detailed_land_allocation_bio$Crop <- factor(sep_detailed_land_allocation_bio$Crop, levels = c(
+  'CornC4 5', 'CornC4 15', 'CornC4 30',
+  'Soybean 5' ,'Soybean 15','Soybean 30', 
+  'FiberCrop 5', 'FiberCrop 15', 'FiberCrop 30', 
+  'OtherGrainC4 5', 'OtherGrainC4 15', 'OtherGrainC4 30', 
+  'Wheat 5','Wheat 15','Wheat 30'
+))
+
+sep_detailed_land_allocation_bio %>% 
   ggplot(aes(x = year, y = value, fill = Crop)) +
   geom_bar(stat='identity') +
   labs(title = paste('Biochar Crop Area (', scen, ')', sep = '' ), x = "Year", y = expression(Total~Biochar~Land~(km^2%*%10^3))) +
+  scale_fill_manual(name = "Data Source", 
+                    breaks = c(
+                      'CornC4 5', 'CornC4 15', 'CornC4 30',
+                      'Soybean 5' ,'Soybean 15','Soybean 30', 
+                      'FiberCrop 5', 'FiberCrop 15', 'FiberCrop 30', 
+                      'OtherGrainC4 5', 'OtherGrainC4 15', 'OtherGrainC4 30', 
+                      'Wheat 5','Wheat 15','Wheat 30'
+                    ),
+                    values = c(corn_colors, soybean_colors, fiber_colors, other_colors, wheat_colors)) +
   theme_bw() +
   theme(legend.title = element_blank())
 
-ggsave(paste(scen, 'only_biochar_crop.jpeg', sep = ''), path = 'Graphs')
+ggsave(paste(scen, '_only_biochar_crop.jpeg', sep = ''), path = 'Graphs')
+
+
 
 #Plot ALL crops with biochar amount (including zero)
+#Make colors
+corn_colors = brewer.pal(5, 'Oranges')[2:5]
+soybean_colors = brewer.pal(5, 'Greens')[2:5]
+fiber_colors = brewer.pal(5, 'Purples')[2:5]
+other_colors = brewer.pal(5, 'Greys')[2:5]
+wheat_colors = brewer.pal(5, 'Blues')[2:5]
+
 sep_detailed_land_allocation %>%
   mutate(Biochar_Amount = as.double(Biochar_Amount)) %>%
   replace_na(list(Biochar_Amount = 0)) %>%
   filter(year > 2015) %>%
   filter(
     (Crop == 'CornC4') | (Crop == 'Soybean') | (Crop == 'FiberCrop') | (Crop == 'OtherGrainC4') | (Crop == 'Wheat')) %>%
-  mutate(Crop = paste(Crop, Biochar_Amount, sep = ' ')) %>%
+  mutate(Crop = paste(Crop, Biochar_Amount, sep = ' ')) -> sep_detailed_land_allocation_all
+
+sep_detailed_land_allocation_all$Crop <- factor(sep_detailed_land_allocation_all$Crop, levels = c(
+  'CornC4 0','CornC4 5', 'CornC4 15', 'CornC4 30',
+  'Soybean 0', 'Soybean 5' ,'Soybean 15','Soybean 30', 
+  'FiberCrop 0', 'FiberCrop 5', 'FiberCrop 15', 'FiberCrop 30', 
+  'OtherGrainC4 0', 'OtherGrainC4 5', 'OtherGrainC4 15', 'OtherGrainC4 30', 
+  'Wheat 0', 'Wheat 5','Wheat 15','Wheat 30'
+))
+
+sep_detailed_land_allocation_all %>%
   ggplot(aes(x = year, y = value, fill = Crop)) +
-  geom_bar(stat='identity') +
+  geom_bar(stat= 'identity') +
   labs(title = paste('Total Crop Area (', scen, ')', sep = '' ), x = "Year", y = expression(Total~Biochar~Land~(km^2%*%10^3))) +
-  theme_bw() +
   scale_fill_manual(name = "Data Source", 
-                    values = c('CornC4 0'='#e3962b','CornC4 5'='#e3962b', 'CornC4 15'='#e3962b', 'CornC4 30'='#e3962b',
-                               'Soybean 0' = '#45912c', 'Soybean 5' = '#45912c','Soybean 15' = '#45912c','Soybean 30' = '#45912c', 
-                               'Fibercrop 0' = '#3584B0', 'Fibercrop 5' = '#3584B0', 'Fibercrop 15' = '#3584B0', 'Fibercrop 30' = '#3584B0', 
-                               'OtherGrainC4 0' = '#3584B0', 'OtherGrainC4 5' = '#3584B0', 'OtherGrainC4 15' = '#3584B0', 'OtherGrainC4 30' = '#3584B0', 
-                               'Wheat 0' = '#45912c', 'Wheat 5' = '#45912c','Wheat 15' = '#45912c','Wheat 30' = '#45912c')) +
+                    breaks = c(
+                      'CornC4 0','CornC4 5', 'CornC4 15', 'CornC4 30',
+                      'Soybean 0', 'Soybean 5' ,'Soybean 15','Soybean 30', 
+                      'FiberCrop 0', 'FiberCrop 5', 'FiberCrop 15', 'FiberCrop 30', 
+                      'OtherGrainC4 0', 'OtherGrainC4 5', 'OtherGrainC4 15', 'OtherGrainC4 30', 
+                      'Wheat 0', 'Wheat 5','Wheat 15','Wheat 30'
+                    ),
+                    values = c(corn_colors, soybean_colors, fiber_colors, other_colors, wheat_colors)) +
+  theme_bw() +
   theme(legend.title = element_blank())
 
-ggsave(paste(scen, 'total_crop_area.jpeg', sep = ''), path = 'Graphs')
+ggsave(paste(scen, '_total_crop_area.jpeg', sep = ''), path = 'Graphs')
 
 
   
