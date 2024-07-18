@@ -64,6 +64,12 @@ sep_detailed_land_allocation %>%
   geom_bar(stat='identity') +
   labs(title = paste('Total Crop Area (', scen, ')', sep = '' ), x = "Year", y = expression(Total~Biochar~Land~(km^2%*%10^3))) +
   theme_bw() +
+  scale_fill_manual(name = "Data Source", 
+                    values = c('CornC4 0'='#e3962b','CornC4 5'='#e3962b', 'CornC4 15'='#e3962b', 'CornC4 30'='#e3962b',
+                               'Soybean 0' = '#45912c', 'Soybean 5' = '#45912c','Soybean 15' = '#45912c','Soybean 30' = '#45912c', 
+                               'Fibercrop 0' = '#3584B0', 'Fibercrop 5' = '#3584B0', 'Fibercrop 15' = '#3584B0', 'Fibercrop 30' = '#3584B0', 
+                               'OtherGrainC4 0' = '#3584B0', 'OtherGrainC4 5' = '#3584B0', 'OtherGrainC4 15' = '#3584B0', 'OtherGrainC4 30' = '#3584B0', 
+                               'Wheat 0' = '#45912c', 'Wheat 5' = '#45912c','Wheat 15' = '#45912c','Wheat 30' = '#45912c')) +
   theme(legend.title = element_blank())
 
 ggsave(paste(scen, 'total_crop_area.jpeg', sep = ''), path = 'Graphs')
