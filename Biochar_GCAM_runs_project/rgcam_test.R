@@ -5,7 +5,7 @@ library(tidyr)
 library(RColorBrewer)
 
 #What scenario do we want? (theoretically you only have to change this)
-scen = 'biochar_carbon_price_100'
+scen = 'biochar_ref'
 
 #Connect to the database
 conn <- localDBConn('Biochar GCAM Data', scen)
@@ -220,6 +220,7 @@ sep_irrigation_water_tech_all %>%
                       'Wheat 0', 'Wheat 5','Wheat 15','Wheat 30'
                     ),
                     values = c(corn_colors, soybean_colors, fiber_colors, other_colors, wheat_colors)) +
+  ylim(0,1250) + 
   theme_bw() +
   theme(legend.title = element_blank())
 
