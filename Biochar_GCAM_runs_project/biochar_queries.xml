@@ -33,4 +33,16 @@
 </query>
 </aQuery>
 
+<aQuery>
+<all-regions/>
+<supplyDemandQuery title="irrigation water withdrawals by ag tech">
+                    <axis1 name="sector">sector</axis1>
+                    <axis2 name="Year">demand-physical[@vintage]</axis2>
+                    <xPath buildList="true" dataName="input" group="false" sumAll="false">*[@type='sector' and not(contains(@name, 'water_td_irr'))]/*[@type='subsector']/*[@type='technology']/
+               *[@type='input' and contains(@name, 'water_td_irr') and ends-with(@name, '_W')]/
+               demand-physical/node()</xPath>
+                    <comments/>
+</supplyDemandQuery>
+</aQuery>
+
 </queries>
